@@ -4,6 +4,8 @@ import  path  from 'path';
 import  logger from 'morgan';
 
 import  {user_route}  from './routes/sql/users';
+import  {user_route_mongo}  from './routes/mongo/user';
+
 
 var app = express();
 
@@ -18,6 +20,8 @@ app.use(express.static(path.join(__dirname, 'public')));
  * API REST ROUTES
  ****************************************************************************/
   app.use(user_route);
+  app.use(user_route_mongo);
+
 
 /***************************************************************************
  * END

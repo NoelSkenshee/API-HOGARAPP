@@ -1,6 +1,6 @@
 import Mail from "../../services/email/sendmail";
 import Utils from "../../services/Utils";
-import IUser from "./Interfaces/Iuser";
+import IUser from "../Interfaces/Iuser";
 import SessionManageR from "../../services/session/token_manager";
 import { userToken } from "../../services/session/token_manager";
 
@@ -109,14 +109,15 @@ export default class User implements IUser {
    */
   public static async login(passwordIn: string, email_: string) {
     const query = Utils.loginP(),
-      db = await Utils.getConSQL()(),{not_exist,novalid_credential}=Utils.message();
+      db = await Utils.getConSQL()(),{not_exist,novalid_credential,unverified}=Utils.message();
     try {
       const res = await db.query(query, [email_]);
-      const { name, id, email, password } = res[0][0];
-      if (!id)
-        return { error: true, message: not_exist, token: null };
-      const compareRes = await Utils.compare(passwordIn, password);
-      if (compareRes) {
+      const { name, id, email, password,verified } = res[0][0];
+      if (!id)  return { error: true, message: not_exist, token: null };
+      if(!verified) return { error: true, message: unverified, token: null };
+
+      const validPassword = await Utils.compare(passwordIn, password);
+      if (validPassword) {
         const token = SessionManageR.genToken(name, id, email);
         return { error: false, message: "", token };
       } else

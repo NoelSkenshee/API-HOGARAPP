@@ -1,9 +1,10 @@
 import ConnectDB_SQL from './db/connection_db_sql';
-import passport from 'passport';
 import crypto from "bcrypt"
+import ConnectDB_MONGO from './db/connection_db_mongo';
 export default class Utils{
 
   private static  connect_sql:ConnectDB_SQL=new ConnectDB_SQL();
+  private static  connect_mongo= ConnectDB_MONGO;
   private  static SEED:string=process.env.SEED_HOGARAPP||"";
   private  static EXPIRE=process.env.EXPIRE_HOGARAPP||"";
   private static  inset_user_procedure=()=>`call insert_user(?,?,?,?)`;
@@ -26,6 +27,10 @@ export default class Utils{
   
   static getConSQL(){
     return this.connect_sql.connect;
+   }
+
+   static getConMONGO(){
+    return this.connect_mongo;
    }
 
    
@@ -65,6 +70,7 @@ export default class Utils{
         objects:{"user":"user","product":"product"},
         added:(object_:string)=>`${object_} added succsessfuly`,
         readyVerified:"This user are ready verified",
+        unverified:"Unverified user are detected",
        not_exist:"Noexistent user",
        novalid_credential:"Invalid Credentials",
 
