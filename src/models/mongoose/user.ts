@@ -33,7 +33,7 @@ export default class UserMongo implements IUser {
           .create({ name, email, password })
           .then(async (res) => {
             const token = SessionManageR.genToken(name, res.id, email);
-            await Mail.verify_user_mail(name, email, token);
+            await Mail.verify_user_mail(name, email, token); 
             return { error: false, message: added(objects.user) };
           })
           .catch((err) => ({ error: true, message: err }));
@@ -47,10 +47,10 @@ export default class UserMongo implements IUser {
    * @returns
    */
 
-  private static getUser(id: number, name: string, email_: string) {
+  public static getUser(id: number, name: string, email_: string) {
     const { not_exist } = Utils.message();
         return userModel
-          .findOne({ id, name, email: email_ })
+          .findOne({ _id:id, name, email: email_ })
           .then((data) => {
             if (!data) return { error: true, message: not_exist, user: null };
             const { id, name, email, verified } = data;

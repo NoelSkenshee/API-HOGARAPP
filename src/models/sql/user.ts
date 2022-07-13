@@ -36,8 +36,8 @@ export default class User implements IUser {
       const res = await db.query(query, [name, email, false, password]),
         { id } = res[0][0],
         token = SessionManageR.genToken(name, id, email);
-        await Mail.verify_user_mail(name, email, token);
-        return { error: false, message: added(objects.user) };
+         await Mail.verify_user_mail(name, email, token);
+         return { error: false, message: added(objects.user) };
     } catch (error: any) {
       return { error: true, message: error };
     }
@@ -50,7 +50,7 @@ export default class User implements IUser {
    * @param name
    * @returns
    */
-  public static async getUser(id: number, email: string, name: string) {
+  public static async getUser(id: number,name: string,email: string) {
     const db = await Utils.getConSQL()(),
       query = Utils.getUserP();
     try {
@@ -76,7 +76,7 @@ export default class User implements IUser {
     const query = Utils.verifyUserP();
     return SessionManageR.decodToken(token)
       .then(async ({ id, email, name }) => {
-        return User.getUser(id, email, name)
+        return User.getUser(id,name,email)
           .then(async ({ error, user, message }) => {
             if (error) return { error: true, message, token: null };
             else
@@ -84,21 +84,21 @@ export default class User implements IUser {
                 if (!user?.verified) {
                   const db = await Utils.getConSQL()();
                   await db.query(query, id);
-                  const token_ = SessionManageR.genToken(name, id, email);
-                  return { error: false, message: "", token: token_ };
+                  //const token_ = SessionManageR.genToken(name, id, email); //AUTO LOGIN
+                  return { error: false, message: "", data:{name,email}};
                 } else
                   return {
                     error: true,
                     message: Utils.message().readyVerified,
-                    token: "",
+                    data: "",
                   };
               } catch (error: any) {
-                return { error: true, message: error, token: null };
+                return { error: true, message: error, data: null };
               }
           })
-          .catch((err) => ({ error: true, message: err, token: null }));
+          .catch((err) => ({ error: true, message: err, data: null }));
       })
-      .catch((err) => ({ error: true, message: err, token: null }));
+      .catch((err) => ({ error: true, message: err, data: null }));
   }
 
   /**
@@ -112,10 +112,10 @@ export default class User implements IUser {
       db = await Utils.getConSQL()(),{not_exist,novalid_credential,unverified}=Utils.message();
     try {
       const res = await db.query(query, [email_]);
+      if(!res[0][0]) return { error: true, message: not_exist+" or "+unverified, token: null }; 
       const { name, id, email, password,verified } = res[0][0];
       if (!id)  return { error: true, message: not_exist, token: null };
       if(!verified) return { error: true, message: unverified, token: null };
-
       const validPassword = await Utils.compare(passwordIn, password);
       if (validPassword) {
         const token = SessionManageR.genToken(name, id, email);
@@ -130,4 +130,12 @@ export default class User implements IUser {
       return { error: true, message: error, token: null };
     }
   }
+
+
+  
+
+
+
+
+
 }

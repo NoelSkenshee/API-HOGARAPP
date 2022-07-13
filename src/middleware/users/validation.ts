@@ -2,15 +2,16 @@ import Utils from "../../services/Utils";
 const { httpResponse, message, codeList, encryp } = Utils;
 
 export default class Validuser {
-  static valiBody(req: any, res: any, next: Function) {
+  static async valiBody(req: any, res: any, next: Function) {
     const { name, email, password } = req.body;
-    const {field}=message(),{badrequest}=codeList();
-
+    const {field,wrong}=message(),{badrequest}=codeList();
     if (!name || !email || !password)
       return httpResponse(res,field,null,true,badrequest, { fieldsRequired: ["name", "email", "password"] }  );
     else {
-     req.body.password = encryp(password);
-      next();
+     const resultPassword = await encryp(password);
+     if(!resultPassword) return httpResponse(res,wrong,null,true,badrequest );
+     req.body.password=resultPassword; 
+     next();
     }
   }
 

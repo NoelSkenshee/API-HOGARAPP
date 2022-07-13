@@ -5,29 +5,40 @@ import  logger from 'morgan';
 
 import  {user_route}  from './routes/sql/users';
 import  {user_route_mongo}  from './routes/mongo/user';
+import  {route_product}  from './routes/sql/product';
+import  {route_product_mongo}  from './routes/mongo/product';
+import expressFile from "express-fileupload";
 
+import cors from "cors";
 
 var app = express();
 
 app.use(logger('dev'));
+app.use(cors({origin:"*"}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
-
-
-
-/***************************************************************************
- * API REST ROUTES
- ****************************************************************************/
-  app.use(user_route);
-  app.use(user_route_mongo);
-
+app.use(expressFile());
 
 /***************************************************************************
- * END
+ * API REST ROUTES PRODUCT
  ****************************************************************************/
 
+ app.use(route_product);// mariaDB
+ app.use(route_product_mongo);//mongo db
 
+/***************************************************************************
+* END
+****************************************************************************/
+
+/***************************************************************************
+ * API REST ROUTES USER
+ ****************************************************************************/
+ app.use(user_route);// mariaDB
+ app.use(user_route_mongo);//mongo db
+/***************************************************************************
+* END
+****************************************************************************/
 
 /***************************************************************************
  * ERROR MANAGER
@@ -38,7 +49,6 @@ app.use(function(req, res, next) {
 
 
 app.use(function(err:any, req:any, res:any, next:Function) {
-
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
   res.status(err.status || 500);
