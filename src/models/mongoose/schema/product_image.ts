@@ -1,5 +1,4 @@
 import mongo from "mongoose";
-import { modelPorduct } from "./product";
 const { Schema } = mongo;
 
 export const  model_IMG = "_ProductImage_";
@@ -11,7 +10,10 @@ const SchemaProductImge = new Schema(
         type: Schema.Types.ObjectId,
         ref: "_Product_",
       },
-
+      consumptionId:{
+        type:mongo.Types.ObjectId,
+        ref:"Consumtion"
+     },
     image: {
       type: String,
       required: true,
@@ -32,5 +34,3 @@ const SchemaProductImge = new Schema(
 
 
 export const ModelImageProduct=mongo.model(model_IMG,SchemaProductImge);
-
-//ModelImageProduct.remove()

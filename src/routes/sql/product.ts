@@ -3,6 +3,7 @@ import Product from "../../models/sql/product";
 import Utils from "../../services/Utils";
 import ValidProduct from "../../middleware/product/valid_product";
 const route = Router();
+
 route
   .route("/product/:token")
   .post(ValidProduct.validProduct, async (req, res, next) => {
@@ -10,6 +11,7 @@ route
         req.body,
       { token } = req.params,
       producto = new Product(product,category, expiryDate,total,quantity,unit,price,req.files?req:null);
+      
     try {
       const { message, data, error } = await producto.insert(token);
       if(!error)Utils.httpResponse(res, message, data, error, Utils.codeList().success);
@@ -18,6 +20,9 @@ route
       Utils.httpResponse(res, err, null, true, Utils.codeList().badrequest);
     }
   });
+
+
+  
   
 route.route("/product/:token").get(async (req, res, next) => {
   const { token } = req.params;

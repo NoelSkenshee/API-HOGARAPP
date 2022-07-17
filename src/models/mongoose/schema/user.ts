@@ -22,6 +22,7 @@ const User= new Schema(
         type:Boolean,
         default:false
      }
+   
   },
   {
   

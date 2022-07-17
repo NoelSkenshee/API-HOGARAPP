@@ -16,6 +16,8 @@ export default class Utils{
   private static  list_unexpired_p="call list_product_unexpired(?,?)";
   private static  list_expired_p="call list_expired_product(?,?)";
   private static  insert_image="call insert_image(?,?,?)";
+  private static  insert_consumtion="call consumption(?,?,?,?)";
+  private static  list_consumtion="call list_consumption(?)";
   private static  welcome_mail_subject=()=>`Bienvenido a HOGARADMIN`;
   private  static welcome_mail_text=(name:string,token:string)=>`<h2>Hola ${name}</h2> 
                                              <div>
@@ -96,17 +98,37 @@ export default class Utils{
     return this.list_expired_p
   }
 
+  /**
+   * `user``product``date``quantity`
+   * @returns 
+   */
+  static insertConsumtionP(){
+    return this.insert_consumtion
+  }
 
+    /**
+   * `user``product``date``quantity`
+   * @returns 
+   */
+     static listConsumtionP(){
+      return this.list_consumtion
+    }
+
+    
   static message(){
     return {
         field:"Required field missing",
-        objects:{"user":"user","product":"product","image":"image"},
+        objects:{"user":"user","product":"product","image":"image","consumtion":"consumtion"},
         added:(object_:string)=>`${object_} added succsessfuly`,
+        updated:(object_:string)=>`${object_} updated succsessfuly`,
+        notfound:(object_:string)=>`${object_} not found succsessfuly`,
         readyVerified:"This user are ready verified",
         unverified:"Unverified user are detected",
        not_exist:"Noexistent user",
        novalid_credential:"Invalid Credentials",
        wrong:"Sory someing was wrong, try again in some minutes",
+       enough:"Ther's not enough",
+
 
     }
   }

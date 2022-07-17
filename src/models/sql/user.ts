@@ -5,6 +5,7 @@ import SessionManageR from "../../services/session/token_manager";
 import { userToken } from "../../services/session/token_manager";
 
 export default class User implements IUser {
+
   name: string;
   email: string;
   password: string;

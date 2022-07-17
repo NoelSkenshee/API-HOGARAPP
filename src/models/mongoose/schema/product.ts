@@ -40,10 +40,18 @@ const ProductSchema=new Schema({
         required:true,
         max:10
     },
+    consumption:{
+        type:Number,
+        min:1
+    },
     images:[{
         type:Schema.Types.ObjectId,
         ref:"_ProductImage_"
-    }]
+    }],
+    consumptionId:{
+        type:mongo.Types.ObjectId,
+        ref:"Consumtion"
+     }
 },{timestamps:true})
 
 

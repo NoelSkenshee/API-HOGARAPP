@@ -110,9 +110,9 @@ export default class Product implements Iproduct {
           id,
           new Date(),
         ]);
-      return { error: false, message: "", data: res[0] };
+        return { error: false, message: "", data: res[0] };
     } catch (error: any) {
-      return { error: false, message: error, data: [] };
+      return { error: true, message: error, data: [] };
     }
   }
 }
