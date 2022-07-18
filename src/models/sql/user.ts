@@ -109,10 +109,9 @@ export default class User implements IUser {
    * @returns
    */
   public static async login(passwordIn: string, email_: string) {
-    const query = Utils.loginP(),
-      db = await Utils.getConSQL()(),{not_exist,novalid_credential,unverified}=Utils.message();
+    const query = Utils.loginP(),{not_exist,novalid_credential,unverified}=Utils.message();
     try {
-      const res = await db.query(query, [email_]);
+      const db = await Utils.getConSQL()(), res = await db.query(query, [email_]);
       if(!res[0][0]) return { error: true, message: not_exist+" or "+unverified, token: null }; 
       const { name, id, email, password,verified } = res[0][0];
       if (!id)  return { error: true, message: not_exist, token: null };
