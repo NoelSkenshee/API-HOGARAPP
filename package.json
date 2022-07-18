@@ -6,6 +6,7 @@
     "start": "ts-node ./bin/init.ts"
   },
   "dependencies": {
+    "@sendgrid/mail": "^7.7.0",
     "@types/bcrypt": "^5.0.0",
     "@types/cookie-parser": "^1.4.3",
     "@types/cors": "^2.8.12",
@@ -18,6 +19,8 @@
     "@types/passport": "^1.0.9",
     "@types/passport-jwt": "^3.0.6",
     "@types/passport-local": "^1.0.34",
+    "@types/send": "^0.17.1",
+    "@types/sendgrid": "^4.3.0",
     "bcrypt": "^5.0.1",
     "cookie-parser": "~1.4.4",
     "cors": "^2.8.5",
@@ -36,14 +39,9 @@
     "passport-jwt": "^4.0.0",
     "passport-local": "^1.0.0",
     "rxjs": "^7.5.6",
-    "sendgrid-mail": "0.0.3",
+    "send": "^0.18.0",
+    "sendgrid": "^5.2.3",
     "ts-node": "^10.8.2",
-    "typescript": "^4.7.4",
-    "@types/sendgrid": "^4.3.0",
-    "sendgrid": "^5.2.3"
-  },
-  "devDependencies": {
-    "@types/sendgrid": "^4.3.0",
-    "sendgrid": "^5.2.3"
+    "typescript": "^4.7.4"
   }
 }
