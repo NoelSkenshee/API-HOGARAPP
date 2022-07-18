@@ -12,7 +12,6 @@ export default class ConnectDB_SQL {
   public async connect(): Promise<Connection> {    
     const config = ConnectDB_SQL;
     const { user, host, password, database, port } = config;
-    if( !user|| !host|| !database)throw new Error("");
     return createConnection({ user,host, password,database});
   }
 }
