@@ -6,7 +6,7 @@ import { ModelImageProduct } from "./schema/product_image";
 import { P_response_data } from "../Interfaces/Iproduct";
 import mongoose from "mongoose";
 import User from "./user";
-import UserMongo from "./user";
+import mongo from 'mongoose';
 
 const PPImageTporoduct={//Populate 
   populate:"images",
@@ -46,8 +46,16 @@ export default class ProductMongo implements Iproduct {
     this.image = image;
   }
 
-  private async insertImage(image: any,productId:any): Promise<P_response> {
-    const { body, files } = image, { added, objects, wrong } = Utils.message(), { image_product } = Utils.staticFolders();
+
+  public static initialize(payload?:any){
+    if(!payload)return new ProductMongo("","",new Date(),0,0,"", 0,"");
+    const {product,category,expiryDate,total,quantity,unit, price,image}=payload;
+    return new ProductMongo(product||"",category||"",expiryDate||Date,total||0,quantity||0,unit||"", price||0,image||"");
+    }
+ 
+
+  private async insertImage(productId:mongo.Types.ObjectId): Promise<P_response> {
+    const { body, files } = this.image, { added, objects, wrong } = Utils.message(), { image_product } = Utils.staticFolders();
     try {
       if (!files || !body) throw new Error("-");
       const { product, alt } = body;
@@ -66,10 +74,10 @@ export default class ProductMongo implements Iproduct {
   }
 
 
-  private static async getImage(product:string){
-    const {not_exist,updated,notfound,objects}=Utils.message();
+  private async getImage(){
+    const {notfound,objects}=Utils.message();
     try {      
-          return ModelImageProduct.findOne({product}).then(async(res)=>{
+          return ModelImageProduct.findOne({product:this.product}).then(async(res)=>{
           if(!res){
             return {error:true,message:notfound(objects.image),data:null}
           }
@@ -111,13 +119,12 @@ export default class ProductMongo implements Iproduct {
 
 
     try {
-      const { id,email,name } = await SessionManageR.decodToken(token),
-      productId=new mongoose.Types.ObjectId(),
-      user=(await User.getUser(id,name,email));
-      if(!user.user)return { error: true, message:user.message, data: null };
-      const  {data,error,message}=(await this.insertImage(image,productId));
+      const user=await User.initialize().validateUser(token),
+      productId=new mongoose.Types.ObjectId();
+      if(user.error)return { error: true, message:user.message, data: null };
+      const  {data,error,message}=(await this.insertImage(productId));
       if(error)return { error: true, message, data: null };
-      const Product=new ProductModel({...payload,_id:productId,user:id});
+      const Product=new ProductModel({...payload,_id:productId,user:user.id});
       Product.images[0]=data;
       await Product.save()
       return { error: false, message: added(objects.product), data: null };
@@ -128,14 +135,11 @@ export default class ProductMongo implements Iproduct {
 
 
 
-  public static async list_expired(token: string): Promise<P_response_data> {
+  public  async list_expired(token: string): Promise<P_response_data> {
     try {
-      const { id,email,name } = await SessionManageR.decodToken(token),
-      {user}=(await User.getUser(id,name,email));
-      if(!user)return { error: true, message:Utils.message().novalid_credential, data: [] };
-      const res:any=(await ProductModel.find({user:id}).populate(PPImageTporoduct.populate,PPImageTporoduct.fields)).map((doc)=>{
-        if(doc && new Date(doc.expiryDate) < new Date())return doc;
-      });
+      const {error,id}=await User.initialize().validateUser(token)
+      if(error)return { error: true, message:Utils.message().novalid_credential, data: [] };
+      const res:any=(await ProductModel.find({user:id,trash:0}).populate(PPImageTporoduct.populate,PPImageTporoduct.fields)).filter(doc=>new Date(doc.expiryDate) <= new Date())
       return { error: false, message:"", data:res };
     } catch (error) {
       
@@ -144,14 +148,11 @@ export default class ProductMongo implements Iproduct {
 
   }
 
-  public static async list_unexpired(token: string): Promise<P_response_data> {
+  public  async list_unexpired(token: string): Promise<P_response_data> {
     try {
-      const { id,email,name } = await SessionManageR.decodToken(token),
-      {user}=(await User.getUser(id,name,email));
-      if(!user)return { error: true, message:Utils.message().novalid_credential, data: [] };
-      const res:any=(await ProductModel.find({user:id}).populate(PPImageTporoduct.populate,PPImageTporoduct.fields)).map((doc)=>{
-       if(doc && new Date(doc.expiryDate) > new Date())return doc;
-      });
+      const {error,id}=await User.initialize().validateUser(token)
+      if(error)return { error: true, message:Utils.message().novalid_credential, data: [] };
+      const res:any=(await ProductModel.find({user:id,trash:0}).populate(PPImageTporoduct.populate,PPImageTporoduct.fields)).filter(doc=>new Date(doc.expiryDate) > new Date())
       return { error: false, message:"", data:res };
     } catch (error) {
       return { error: true, message:<string>error, data:[] };
@@ -159,26 +160,40 @@ export default class ProductMongo implements Iproduct {
   }
 
 
-
-
-  public static async updateProduct(token:string,productId:any,payload:any){
-    const {not_exist,updated,objects,wrong,enough}=Utils.message();
+   public async setDonation(token:string,productId:any,{donation}:{donation:number}){
+    const {not_exist,found,objects,added,enough}=Utils.message();
     try {
-        const {id,email,name}=await SessionManageR.decodToken(token), {error,message,user}=await UserMongo.getUser(id,name,email);
+         const {error,id}=await User.initialize().validateUser(token)
          if(error)return {error:true,message:not_exist,data:null}
-         return ProductModel.findById(productId).then(async (res)=>{
-            if(!res)return {error:true,message:res,data:null}
-            if(res.product && res.quantity){
-              if(!res.consumption)res.consumption=0;
-               if(res.quantity-res.consumption<payload.quantity)return {error:true,message:enough,data:null}
-              res.consumptionId=payload.consumptionId;
-            res.consumption+=payload.quantity
-              const  {error,message,data}=await this.getImage(res.product);            
+           const res= await  ProductModel.findOne({_id:productId,trash:0});
+             if(!res)return  {error:true,message:found,data:null}
+             if(res.quantity-(res.donate+res.consumption)>=donation){
+             res.donate+=donation;
+             await res.save()
+             return {error:false,message:added(objects.donation),data:null}
+            }else return  {error:true,message:enough,data:null}
+        } catch (error) {
+          return {error:true,message:<string>error,data:null}
+        }
+
+   }
+
+  public  async updateProduct(token:string,productId:any,payload:any){
+    const {not_exist,updated,objects,found,enough}=Utils.message();
+    try {
+      const {error,id}=await User.initialize().validateUser(token)
+         if(error)return {error:true,message:not_exist,data:null}
+           const res=await  ProductModel.findOne({_id:productId,trash:0})
+             if(!res)return {error:true,message:found,data:null}
+             if(res.quantity-(res.donate+res.consumption)>=payload.quantity){
+              res.consumption+=payload.quantity;
+               
+              this.product=<string>res.product;
+              const  {error,message,data}=await this.getImage();  
               if(error)return  {error:true,message,data:null}
               await res.save()
-              return {error:false,message:updated(objects.product),data:null}
-             }else return  {error:true,message:wrong,data:null}
-          })
+              return {error:false,message:updated(objects.product),data}
+             }else return  {error:true,message:enough,data:null}
     } catch (error) {
       return {error:true,message:error,data:null}
     }

@@ -2,8 +2,7 @@ import { Router } from "express";
 import Utils from "../../services/Utils";
 import ValidProduct from "../../middleware/product/valid_product";
 import ProductMongo from '../../models/mongoose/product';
-const conn = Utils.getConMONGO();
-
+const conn = Utils.getConMONGO(),product=ProductMongo.initialize();
 const route = Router();
 
 
@@ -32,7 +31,7 @@ route
   const { token } = req.params;
   try {
     await conn.connect()
-    const { message, data, error } = await ProductMongo.list_unexpired(token);
+    const { message, data, error } = await product.list_unexpired(token);
     await conn.disconnect()
     Utils.httpResponse(res, message, data, error, Utils.codeList().success);
   } catch (err: any) {
@@ -47,7 +46,7 @@ route
   const { token } = req.params;
   try {
     await conn.connect()
-    const { message, data, error } = await ProductMongo.list_expired(token);
+    const { message, data, error } = await product.list_expired(token);
     await conn.disconnect()
     Utils.httpResponse(res, message, data, error, Utils.codeList().success);
   } catch (err: any) {

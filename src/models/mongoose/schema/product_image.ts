@@ -1,14 +1,14 @@
 import mongo from "mongoose";
 const { Schema } = mongo;
 
-export const  model_IMG = "_ProductImage_";
+export const  model_IMG = "ProductImage";
 
 const SchemaProductImge = new Schema(
   {
 
     productId:{
         type: Schema.Types.ObjectId,
-        ref: "_Product_",
+        ref: "Product",
       },
       consumptionId:{
         type:mongo.Types.ObjectId,

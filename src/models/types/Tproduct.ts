@@ -1,4 +1,5 @@
-export  type product={
+export  type Tproduct={
+    id:string|number
     user:string	
     product:string	
     category:string	
@@ -7,7 +8,8 @@ export  type product={
     total:number	
     quantity:number	
     unit:string	
-    price:number
+    price:number,
+    image:string
 }
 
 

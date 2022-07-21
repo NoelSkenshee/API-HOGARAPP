@@ -2,7 +2,7 @@ import mongo from "mongoose";
 import { model_IMG } from './product_image';
 const {Schema}=mongo;
 
-export const modelPorduct="_Product_";
+export const modelPorduct="Product";
 const ProductSchema=new Schema({
     user:{
         type:String,
@@ -10,13 +10,12 @@ const ProductSchema=new Schema({
     },
     product:{
           type:String,
-          max:20
-    },
+
+         },
     
     category: {
         type:String,
         required:true,
-        max:20
     },
     expiryDate: {
         type:Date,
@@ -33,20 +32,29 @@ const ProductSchema=new Schema({
     unit: {
         type:String,
         required:true,
-        max:10
     },
     price:{
-        type:String,
+        type:Number,
         required:true,
-        max:10
+    },
+    donate:{
+        type:Number,
+        required:true,
+        default:0
     },
     consumption:{
         type:Number,
-        min:1
+        default:0
+
+    },
+    trash:{
+        type:Number,
+        default:0,
+        max:1
     },
     images:[{
         type:Schema.Types.ObjectId,
-        ref:"_ProductImage_"
+        ref:"ProductImage"
     }],
     consumptionId:{
         type:mongo.Types.ObjectId,

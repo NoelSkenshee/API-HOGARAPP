@@ -17,7 +17,7 @@ const ConsumptionModel=new Schema({
      },
      product:[{
         type:mongo.Types.ObjectId,
-        ref:"_Product_"
+        ref:"Product"
      }],
      image:{
         type:String,
