@@ -18,6 +18,9 @@ export default class Utils{
   private static  insert_image="call insert_image(?,?,?)";
   private static  insert_consumtion="call consumption(?,?,?,?)";
   private static  list_consumtion="call list_consumption(?)";
+  private static  donate="call donate(?,?,?,?,?,?,?,?,?)";
+  private static  list_donations="call list_donations(?)";
+  private static  trash="call trash(?,?)";
   private static  welcome_mail_subject=()=>`Bienvenido a HOGARADMIN`;
   private  static welcome_mail_text=(name:string,token:string)=>`<h2>Hola ${name}</h2> 
                                              <div>
@@ -81,6 +84,26 @@ export default class Utils{
     return this.insert_p
   }
 
+  
+   
+/**
+ * //id,product,destination,date,expiry_date,quantity,unit,image
+ * @returns 
+ */
+  static donateP(){
+    return this.donate
+  }
+
+  static listDonationsP(){
+    return this.list_donations
+  }
+/**
+ * id,product,trash
+ * @returns 
+ */
+  static trashP(){
+    return this.trash
+  }
 /**
  * the query require 3 parameters the product name,the image and the alternativ text
  * This procedure validate if the image are ready exist before insert the image in the DB
@@ -118,7 +141,7 @@ export default class Utils{
   static message(){
     return {
         field:"Required field missing",
-        objects:{"user":"user","product":"product","image":"image","consumtion":"consumtion"},
+        objects:{"user":"user","product":"product","image":"image","consumtion":"consumtion","donation":"donation"},
         added:(object_:string)=>`${object_} added succsessfuly`,
         updated:(object_:string)=>`${object_} updated succsessfuly`,
         notfound:(object_:string)=>`${object_} not found succsessfuly`,
@@ -128,6 +151,8 @@ export default class Utils{
        novalid_credential:"Invalid Credentials",
        wrong:"Sory someing was wrong, try again in some minutes",
        enough:"Ther's not enough",
+       trash:"In the trash",
+       found:"Not found",
 
 
     }

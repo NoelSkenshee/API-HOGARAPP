@@ -22,5 +22,6 @@ export default interface Iproduct{
     image?:any
 
     insert(token:string):Promise<P_response>
-
+    list_expired(token: string): Promise<P_response_data> 
+    list_unexpired(token: string): Promise<P_response_data>
 }

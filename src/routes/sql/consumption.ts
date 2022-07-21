@@ -1,6 +1,5 @@
 import express from "express";
 import Utils from "../../services/Utils";
-import Validuser from "../../middleware/users/validation";
 import Consumption from "../../models/sql/consumption";
 import ValidConsumption from '../../middleware/consumption/valid_consumtion';
 const conn = Utils.getConMONGO();
@@ -20,7 +19,7 @@ router.route("/consumption/:token").post(ValidConsumption.validConsumption, asyn
 
 router.route("/consumption/:token").get( async (req, res, next) => {
    const token_=req.params.token;
-   const  {error,message,data}=await Consumption.listConsumtion(token_);
+   const  {error,message,data}=await Consumption.initialize().listConsumtion(token_);
    await conn.disconnect()
    if(error)httpResponse(res, message, null, error, codeList().badrequest)
    else httpResponse(res, message,data, error, codeList().success)

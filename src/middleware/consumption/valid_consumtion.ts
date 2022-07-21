@@ -4,7 +4,7 @@ export default class ValidConsumption{
   static  validConsumption(req:any,res:any,next:Function){
         const {product,quantity }=req.body;
         const {field}=message(),{badrequest}=codeList();
-        if(!product||!quantity)return Utils.httpResponse(res,field,null,true,badrequest,["product","quantity"])
+        if(product==undefined||!quantity)return Utils.httpResponse(res,field,null,true,badrequest,["product","quantity"])
         next()
     }
 }

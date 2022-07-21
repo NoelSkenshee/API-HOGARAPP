@@ -2,11 +2,9 @@ import sg from "@sendgrid/mail"; //(process.env.SENDGRID_API_KEY);
 
 import Utils from "../Utils";
 
-export default class Mail extends Utils {
+export default class Mail {
   private static senKey = process.env.HOGARAPP_EMAIL_KEY || "";
-  constructor() {
-    super();
-  }
+
   public static verify_user_mail(name: string, to: string, token: string) {
      sg.setApiKey(this.senKey)
     const payload = Utils.getMialPayload();

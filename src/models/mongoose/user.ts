@@ -22,6 +22,14 @@ export default class UserMongo implements IUser {
     this.verified = false;
   }
 
+  public static initialize(payload?:any){
+    if(!payload)return new UserMongo("", "","");
+      const {name, email, password}=payload;
+      return new UserMongo(name||"", email||"", password||"");
+    }
+ 
+
+
   /**
    *
    * @returns
@@ -47,39 +55,36 @@ export default class UserMongo implements IUser {
    * @returns
    */
 
-  public static getUser(id: number, name: string, email_: string) {
+  public  getUser(id: number) {
     const { not_exist } = Utils.message();
-
     return userModel
-      .findOne({ _id: id, name, email: email_ })
+      .findOne({ _id: id, name:this.name, email: this.email })
       .then((data) => {
-        if (!data) return { error: true, message: not_exist, user: null };
+      if (!data) return { error: true, message: not_exist, user: null };
         const { id, name, email, verified } = data;
         return {
           error: false,
-          message: "",
-          user: { id, name, email, verified },
+          message: null||"",
+         user: { id, name, email, verified },
         };
       })
-      .catch((err) => {
-        return { error: true, message: err, user: null };
-      });
+    .catch((err) =>{
+     return { error: true, message:<string>err, user: null }
+    });
   }
+
 
   /**
    *
    * @param token
    * @returns
    */
-  static verifyUser(token: string) {
+  public verifyUser(token: string) {
     const { not_exist, readyVerified } = Utils.message();
     return SessionManageR.decodToken(token)
       .then(async ({ id, name, email }) => {
-        const { error, message, user } = await UserMongo.getUser(
-          id,
-          name,
-          email
-        );
+        this.name=name;this.email=email;
+        const { error, message, user } = await this.getUser(id);
         if (error) return { error: true, message, token: null };
         if (user?.verified)
           return { error: true, message: readyVerified, token: null };
@@ -96,26 +101,45 @@ export default class UserMongo implements IUser {
       .catch((err) => ({ error: true, message: err, token: null }));
   }
 
+
+
+
   /**
    *
    * @param passwordIn
    * @param email
+   * into initialize
    * @returns
    */
-  static login(passwordIn: string, email: string) {
+   login() {
     const { not_exist, unverified, novalid_credential } = Utils.message();
     return userModel
-      .findOne({ email })
+      .findOne({ email:this.email })
       .then(async (data) => {
         if (!data) return { error: true, message: not_exist, token: null };
         const { email, password, id, verified, name } = data;
         if (!verified) return { error: true, message: unverified, token: null };
-        const validpassword = await Utils.compare(passwordIn, password);
+        const validpassword = await Utils.compare(this.password, password);
         if (!validpassword)
           return { error: true, message: novalid_credential, token: null };
         const token = SessionManageR.genToken(name, id, email);
         return { error: false, message: "", token };
       })
       .catch((err) => ({ error: true, message: err, token: null }));
+  }
+
+
+
+
+    async validateUser(token:string){
+    try {
+    const {id,name,email}=await SessionManageR.decodToken(token);
+    this.name=name;this.email=email;
+   const {error,message}= await this.getUser(id);
+    return {error,message,id:id||null}
+    }
+    catch (error) {
+      return {error:true,message:<string>error,id:null}
+    }
   }
 }
