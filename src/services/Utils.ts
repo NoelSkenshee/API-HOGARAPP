@@ -4,7 +4,6 @@ import ConnectDB_MONGO from './db/connection_db_mongo';
 import { ReqImage, image } from '../models/types/Tproduct';
 export default class Utils{
 
-  private static  connect_sql:ConnectDB_SQL=new ConnectDB_SQL();
   private static  connect_mongo= ConnectDB_MONGO;
   private  static SEED:string=process.env.SEED_HOGARAPP||"";
   private  static EXPIRE=process.env.EXPIRE_HOGARAPP||"";
@@ -40,7 +39,7 @@ export default class Utils{
    * @returns 
    */                                        
   static getConSQL(){
-    return this.connect_sql.connect;
+    return ConnectDB_SQL.instance;
    }
 
    static getConMONGO(){

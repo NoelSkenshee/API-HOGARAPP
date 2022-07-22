@@ -8,11 +8,20 @@ export default class ConnectDB_SQL {
   private static database: string = process.env.DB_SQL_HOGARAPP || this.empty;
   private static port: number  = process.env.DB_SQL_PORT
     ? parseInt(process.env.DB_SQL_PORT):3308;
-
-  public async connect(): Promise<Connection> {    
+  public static conn:Promise<Connection> ;
+   constructor(){
+    
+   }
+  public static instance(){
+    if(!ConnectDB_SQL.conn){
+       return new ConnectDB_SQL().connect()
+    }else return ConnectDB_SQL.conn;
+  }
+  
+  public  connect(): Promise<Connection> {    
     const config = ConnectDB_SQL;
     const { user, host, password, database, port } = config;
     if( !user|| !host|| !database)throw new Error("");
-    return createConnection({ user,host, password,database});
+    return ConnectDB_SQL.conn=createConnection({ user,host, password,database});
   }
 }

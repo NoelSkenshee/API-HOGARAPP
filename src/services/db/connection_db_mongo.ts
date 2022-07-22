@@ -4,7 +4,6 @@ export default class ConnectDB_MONGO {
   private static connetion_credential: string | undefined =
     process.env.DB_USER_MONGO;
 
-
     
   public static async connect() {
     const config = this;
