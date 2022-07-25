@@ -1,6 +1,7 @@
 import { TresponseConsumtion } from '../types/Tconsume';
 export default interface Iconsumption{
-    product:number
+    productId:number|string
+    product:string
     quantity:number
     date:Date
     insert(token:string):Promise<TresponseConsumtion>

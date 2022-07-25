@@ -3,9 +3,14 @@ const {Schema}=mongo;
 
 const schemaConsumption="Consumption";
 const ConsumptionModel=new Schema({
+    product:{
+      type:String,
+      required:true
+    },
     date:{
        type:Date,
-       required:true
+       required:true,
+       unique:true
     },
     quantity:{
         type:Number,
@@ -15,7 +20,7 @@ const ConsumptionModel=new Schema({
      user:{
         type:String,
      },
-     product:[{
+     productId:[{
         type:mongo.Types.ObjectId,
         ref:"Product"
      }],

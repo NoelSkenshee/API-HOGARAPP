@@ -5,6 +5,8 @@ export  type Tproduct={
     category:string	
     createdAt:string	
     expiryDate:Date	
+    consumption:number
+    donate:number
     total:number	
     quantity:number	
     unit:string	

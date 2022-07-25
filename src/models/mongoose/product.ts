@@ -139,7 +139,9 @@ export default class ProductMongo implements Iproduct {
     try {
       const {error,id}=await User.initialize().validateUser(token)
       if(error)return { error: true, message:Utils.message().novalid_credential, data: [] };
-      const res:any=(await ProductModel.find({user:id,trash:0}).populate(PPImageTporoduct.populate,PPImageTporoduct.fields)).filter(doc=>new Date(doc.expiryDate) <= new Date())
+      const res:any=(await ProductModel.find({user:id,trash:0})
+      .populate(PPImageTporoduct.populate,PPImageTporoduct.fields))
+      .filter(doc=>new Date(doc.expiryDate) <= new Date());
       return { error: false, message:"", data:res };
     } catch (error) {
       
@@ -152,7 +154,9 @@ export default class ProductMongo implements Iproduct {
     try {
       const {error,id}=await User.initialize().validateUser(token)
       if(error)return { error: true, message:Utils.message().novalid_credential, data: [] };
-      const res:any=(await ProductModel.find({user:id,trash:0}).populate(PPImageTporoduct.populate,PPImageTporoduct.fields)).filter(doc=>new Date(doc.expiryDate) > new Date())
+      const res:any=(await ProductModel.find({user:id,trash:0})
+      .populate(PPImageTporoduct.populate,PPImageTporoduct.fields))
+      .filter(doc=>new Date(doc.expiryDate) > new Date());
       return { error: false, message:"", data:res };
     } catch (error) {
       return { error: true, message:<string>error, data:[] };

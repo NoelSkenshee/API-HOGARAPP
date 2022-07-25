@@ -11,6 +11,8 @@ import  {consumtion_route_mongo}  from './routes/mongo/consumption';
 import  {consumtion_route_sql}  from './routes/sql/consumption';
 import  {expiry}  from './routes/sql/expiry';
 import  {expiry_mongo}  from './routes/mongo/expiry';
+import  {query_route}  from './routes/sql/queries';
+import  {query_route_mongo}  from './routes/mongo/queries';
 
 
 
@@ -63,6 +65,18 @@ app.use(expressFile());
 /***************************************************************************
 * END
 ****************************************************************************/
+
+/***************************************************************************
+ * API REST ROUTES QUERIES
+ ****************************************************************************/
+ app.use(query_route);// mariaDB
+ app.use(query_route_mongo);//mongo db
+/***************************************************************************
+* END
+****************************************************************************/
+
+
+
 /***************************************************************************
  * ERROR MANAGER
  ****************************************************************************/

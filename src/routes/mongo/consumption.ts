@@ -9,8 +9,8 @@ const router = express.Router(),
   { httpResponse, message, codeList } = Utils;
 
 router.route("/mongo/consumption/:token").post(ValidConsumption.validConsumption, async (req, res, next) => {
-   const {product,quantity } = req.body,{token}=req.params;
-   const CONSUMPTION = new ConsumptionMONGO(product,quantity);
+   const {product,quantity,productId } = req.body,{token}=req.params;
+   const CONSUMPTION = new ConsumptionMONGO(productId,quantity,product);
    await conn.connect()
    const {error,message,data}= await CONSUMPTION.insert(token);
    await conn.disconnect()

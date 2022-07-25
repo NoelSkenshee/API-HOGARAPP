@@ -33,7 +33,7 @@ export default class Expiry implements Iexpiry{
          const {added,objects}=Utils.message()
          const {error,message,id}=await User.initialize().validateUser(token);
          if(error)return {error,message,data:null};
-         const  res=await conn.query(query,[id,product.id,product.product, destination,date,expiryDate,quantity,unit,image])
+         await conn.query(query,[id,product.id,product.product, destination,date,new Date(expiryDate),quantity,unit,image])
          return {error,message:added(objects.donation),data:null}
          } catch (error) {
          return {error:true,message:<string>error,data:null}
