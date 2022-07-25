@@ -1,8 +1,8 @@
-import { product, image } from '../types/Tproduct';
+import { Tproduct } from '../types/Tproduct';
 
 //import {} from "rxjs"
 export type P_response_data={
-    error:boolean,message:string,data:product[]
+    error:boolean,message:string,data:Tproduct[]
 }
 
 export type P_response={

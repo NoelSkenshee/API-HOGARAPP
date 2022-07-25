@@ -8,9 +8,8 @@ const router = express.Router(),
   { httpResponse, message, codeList } = Utils;
 
 router.route("/consumption/:token").post(ValidConsumption.validConsumption, async (req, res, next) => {
-  const {product,quantity } = req.body,{token}=req.params;
-  const CONSUMPTION = new Consumption(product,quantity);
-  const {error,message,data}= await CONSUMPTION.insert(token);
+  const {product,quantity,productId } = req.body,{token}=req.params;
+  const {error,message,data}= await Consumption.initialize({product,quantity,productId}).insert(token);
   await conn.disconnect()
   if (error) httpResponse(res, message, null, error, codeList().badrequest);
   else httpResponse( res,message,data, error, codeList().success)

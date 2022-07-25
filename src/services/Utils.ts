@@ -20,6 +20,10 @@ export default class Utils{
   private static  donate="call donate(?,?,?,?,?,?,?,?,?)";
   private static  list_donations="call list_donations(?)";
   private static  trash="call trash(?,?)";
+  private static  product_remaining="call product_remaining(?,?,?)";
+  private static  consumption_average="call consumption_average(?,?)";
+
+
   private static  welcome_mail_subject=()=>`Bienvenido a HOGARADMIN`;
   private  static welcome_mail_text=(name:string,token:string)=>`<h2>Hola ${name}</h2> 
                                              <div>
@@ -136,7 +140,13 @@ export default class Utils{
       return this.list_consumtion
     }
 
-    
+    static product_remainingP(){
+      return this.product_remaining
+    } 
+
+    static consumption_averageP(){
+      return this.consumption_average
+    } 
   static message(){
     return {
         field:"Required field missing",

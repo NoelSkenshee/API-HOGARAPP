@@ -6,21 +6,34 @@ import { ModelConsumption } from "./schema/consumtion";
 import mongo from "mongoose";
 import ProductMongo from "./product";
 export default class ConsumptionMONGO implements Iconsumption {
-  product: number;
+  productId: number|string;
+  product:string
   quantity: number;
   date: Date;
-
-   constructor(product: number, quantity: number) {
+  
+   constructor(productId: string, quantity: number,product:string) {
     this.date = new Date();
     this.quantity = quantity;
-    this.product = product;
+    this.productId = productId;
+    this.product=product;
   }
 
   public static initialize(payload?:any){
-    if(!payload)return new ConsumptionMONGO(0,0)
-    const {product,quantity}=payload;
-    return new ConsumptionMONGO(product||0,quantity||0)
+    if(!payload)return new ConsumptionMONGO("",0,"")
+    const {productId,quantity,product}=payload;
+    return new ConsumptionMONGO(productId||"",quantity||0,product||"")
    }
+
+
+   private async updateConsumption(){
+    const {found}=Utils.message();
+   const consumption=await ModelConsumption.findOne({date:this.date,product:this.product});
+   if(!consumption)return {error:true,message:found,data:null};
+    consumption.quantity+=this.quantity;
+    consumption.save()
+    return {error:false,message:"",data:consumption._id};
+   }
+
 
   async insert(token: string): Promise<TresponseConsumtion> {
     const { added, objects } = Utils.message(),
@@ -30,20 +43,13 @@ export default class ConsumptionMONGO implements Iconsumption {
       const { error, id, message } = await UserMongo.initialize().validateUser(token);
       if (error) return { error: true, message, data: [] };
       const consumptionId = new mongo.Types.ObjectId();
-      const consumption = new ModelConsumption({
-        _id: consumptionId,
-        date,
-        quantity,
-      });
-      consumption.user = <any>id;
-      const res_update = await ProductMongo.initialize().updateProduct(token, product, {
-        consumption: consumptionId,
-        quantity,
-      });
-      if (res_update.error)
-        return { error: true, message: <string>res_update.message, data: [] };
-      consumption.image = <any>res_update.data;
-      consumption.product[0] = <any>product;
+      const res_update = await ProductMongo.initialize().updateProduct(token, product, { consumption: consumptionId, quantity, });
+      const res_up_consumption=await this.updateConsumption()
+      if (res_update.error || !res_up_consumption.error)return { error: true, message: <string>res_update.message , data: [] };
+        const consumption = new ModelConsumption({ _id: consumptionId,  date, quantity});
+        consumption.user = <any>id;
+        consumption.image = <any>res_update.data;
+        consumption.productId[0] = <any>product;
       await consumption.save();
       return { error: false, message: added(objects.consumtion), data: [] };
     } catch (error) {
