@@ -1,6 +1,5 @@
 import express from "express";
 import Utils from "../../services/Utils";
-import ValidConsumption from '../../middleware/consumption/valid_consumtion'
 import Queries from '../../models/sql/queries/product';
 import Validator from '../../middleware/queries/validator';
 
@@ -17,9 +16,17 @@ router.route("/queries/remaining/:token").get(Validator.validateRemaining, async
 });
 
 
+router.route("/queries/average/:token").get(Validator.validateRemaining, async (req, res, next) => {
+   const {product} = req.query,{token}=req.params;
+   const {error,message,data}= await Queries.instance({token,product}).average();
+   if (error) httpResponse(res, message, data, error, codeList().badrequest);
+   else httpResponse( res,message,data, error, codeList().success)
+});
+
+
 router.route("/queries/durationsdays/:token").get(Validator.validateDuration, async (req, res, next) => {
    const {product,expiryDate } = req.query,{token}=req.params;
-   const days= await Queries.instance({token,product}).durationDays(new Date(<string>expiryDate));
+   const days= await Queries.instance({token,product}).diferenceDate(new Date,new Date(<string>expiryDate));
    httpResponse( res,"",days, false, codeList().success)
 });
 

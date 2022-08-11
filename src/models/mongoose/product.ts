@@ -60,16 +60,16 @@ export default class ProductMongo implements Iproduct {
       if (!files || !body) throw new Error("-");
       const { product, alt } = body;
       return ModelImageProduct.findOne({ product }).then(async (res) => {
-        if (res) return { error: false, message: added(objects.image), data: res._id };
+        if (res) return { error: false, message: added(objects.image), data: res._id,token:null};
         else {
         const  { file, message } = Utils.publicFile( files.image, product, image_product);
-          if (!file) return { error: true, message, data: null };
+          if (!file) return { error: true, message, data: null ,token:null};
             const {_id}=(await  ModelImageProduct.create({ image: file, alt,product,productId}))
-            return { error: false, message: added(objects.image), data: _id };
+            return { error: false, message: added(objects.image), data: _id ,token:null};
         }
-      }).catch((err)=>({ error: true, message: err, data: null }));
+      }).catch((err)=>({ error: true, message: err, data: null ,token:null}));
     } catch (error) {
-       return { error: true, message: <string>error, data: null };
+       return { error: true, message: <string>error, data: null ,token:null};
     }
   }
 
@@ -121,15 +121,15 @@ export default class ProductMongo implements Iproduct {
     try {
       const user=await User.initialize().validateUser(token),
       productId=new mongoose.Types.ObjectId();
-      if(user.error)return { error: true, message:user.message, data: null };
+      if(user.error)return { error: true, message:user.message, data: null,token:user.token };
       const  {data,error,message}=(await this.insertImage(productId));
-      if(error)return { error: true, message, data: null };
+      if(error)return { error: true, message, data: null ,token:user.token };
       const Product=new ProductModel({...payload,_id:productId,user:user.id});
       Product.images[0]=data;
       await Product.save()
-      return { error: false, message: added(objects.product), data: null };
+      return { error: false, message: added(objects.product), data: null ,token:user.token };
     } catch (error) {
-      return { error: true, message: <string>error, data: null };
+      return { error: true, message: <string>error, data: null ,token:null };
     }
   }
 
@@ -137,29 +137,29 @@ export default class ProductMongo implements Iproduct {
 
   public  async list_expired(token: string): Promise<P_response_data> {
     try {
-      const {error,id}=await User.initialize().validateUser(token)
-      if(error)return { error: true, message:Utils.message().novalid_credential, data: [] };
-      const res:any=(await ProductModel.find({user:id,trash:0})
+      const  user=await User.initialize().validateUser(token)
+      if(user.error)return { error: true, message:user.message, data:[],token:user.token };
+      const res:any=(await ProductModel.find({user:user.id,trash:0})
       .populate(PPImageTporoduct.populate,PPImageTporoduct.fields))
       .filter(doc=>new Date(doc.expiryDate) <= new Date());
-      return { error: false, message:"", data:res };
+      return { error: false, message:"", data:res ,token:user.token };
     } catch (error) {
       
-      return { error: true, message:<string>error, data:[] };
+      return { error: true, message:<string>error, data:[] ,token:null};
     }
 
   }
 
   public  async list_unexpired(token: string): Promise<P_response_data> {
     try {
-      const {error,id}=await User.initialize().validateUser(token)
-      if(error)return { error: true, message:Utils.message().novalid_credential, data: [] };
-      const res:any=(await ProductModel.find({user:id,trash:0})
+      const  user=await User.initialize().validateUser(token)
+      if(user.error)return { error: true, message:user.message, data:[],token:user.token };
+      const res:any=(await ProductModel.find({user:user.id,trash:0})
       .populate(PPImageTporoduct.populate,PPImageTporoduct.fields))
       .filter(doc=>new Date(doc.expiryDate) > new Date());
-      return { error: false, message:"", data:res };
+      return { error: false, message:"", data:res,token:user.token};
     } catch (error) {
-      return { error: true, message:<string>error, data:[] };
+      return { error: true, message:<string>error, data:[],token:null };
     }
   }
 
@@ -167,17 +167,17 @@ export default class ProductMongo implements Iproduct {
    public async setDonation(token:string,productId:any,{donation}:{donation:number}){
     const {not_exist,found,objects,added,enough}=Utils.message();
     try {
-         const {error,id}=await User.initialize().validateUser(token)
-         if(error)return {error:true,message:not_exist,data:null}
+         const  user=await User.initialize().validateUser(token)
+          if(user.error)return { error: true, message:user.message, data:[],token:user.token };
            const res= await  ProductModel.findOne({_id:productId,trash:0});
-             if(!res)return  {error:true,message:found,data:null}
+             if(!res)return  {error:true,message:found,data:null,token:user.token };
              if(res.quantity-(res.donate+res.consumption)>=donation){
              res.donate+=donation;
              await res.save()
-             return {error:false,message:added(objects.donation),data:null}
-            }else return  {error:true,message:enough,data:null}
+             return {error:false,message:added(objects.donation),data:null,token:user.token };
+            }else return  {error:true,message:enough,data:null,token:null };
         } catch (error) {
-          return {error:true,message:<string>error,data:null}
+          return {error:true,message:<string>error,data:null,token:null };
         }
 
    }
@@ -185,21 +185,21 @@ export default class ProductMongo implements Iproduct {
   public  async updateProduct(token:string,productId:any,payload:any){
     const {not_exist,updated,objects,found,enough}=Utils.message();
     try {
-      const {error,id}=await User.initialize().validateUser(token)
-         if(error)return {error:true,message:not_exist,data:null}
+      const  user=await User.initialize().validateUser(token)
+      if(user.error)return { error: true, message:user.message, data:[],token:user.token };
            const res=await  ProductModel.findOne({_id:productId,trash:0})
-             if(!res)return {error:true,message:found,data:null}
+             if(!res)return {error:true,message:found,data:null,token:user.token };
              if(res.quantity-(res.donate+res.consumption)>=payload.quantity){
               res.consumption+=payload.quantity;
                
               this.product=<string>res.product;
               const  {error,message,data}=await this.getImage();  
-              if(error)return  {error:true,message,data:null}
+              if(error)return  {error:true,message,data:null,token:user.token };
               await res.save()
-              return {error:false,message:updated(objects.product),data}
-             }else return  {error:true,message:enough,data:null}
+              return {error:false,message:updated(objects.product),data,token:user.token };
+             }else return  {error:true,message:enough,data:null,token:user.token };
     } catch (error) {
-      return {error:true,message:error,data:null}
+      return {error:true,message:error,data:null,token:null };
     }
   }
 

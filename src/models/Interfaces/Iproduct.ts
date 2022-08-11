@@ -2,11 +2,11 @@ import { Tproduct } from '../types/Tproduct';
 
 //import {} from "rxjs"
 export type P_response_data={
-    error:boolean,message:string,data:Tproduct[]
+    error:boolean,message:string,data:Tproduct[],token:string|null
 }
 
 export type P_response={
-    error:boolean,message:string,data:any
+    error:boolean,message:string,data:any,token:string|null
 }
 
 export default interface Iproduct{

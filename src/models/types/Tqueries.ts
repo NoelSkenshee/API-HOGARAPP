@@ -1,0 +1,1 @@
+export type Tquery_response={error:boolean,message:string,data:any,token:string|null}

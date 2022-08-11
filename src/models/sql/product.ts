@@ -14,7 +14,7 @@ export default class Product  implements Iproduct {
   price: number;
   image?:any
 
-  constructor(
+  private constructor(
     product: string,
     category: string,
     expiryDate: Date,
@@ -44,20 +44,19 @@ export default class Product  implements Iproduct {
       const {product,category,expiryDate,total,quantity,unit, price,image}=payload;
       return new Product(product||"",category||"",expiryDate||Date,total||0,quantity||0,unit||"", price||0,image||"");
     }
-
-  private  async  insertIamge(){
+    async  insertIamge(){
     const conn = await Utils.getConSQL()(),
     procedure = Utils.insertImagePP();    
     try {
-     if(!this.image || !this.image.files)return {error:true,message:null,data:null}
+     let file:any=this.product+".jpeg",alt=this.product;
+     if(this.image && this.image.files){
      const {alt,product}=this.image.body;
-     const {error,message,file}=Utils.publicFile(this.image.files.image,product,Utils.staticFolders().image_product)     
-     if(error)return {error:true,message,data:null}
-     const res=await conn.query(procedure,[product,file,alt]);
+     file=Utils.publicFile(this.image.files.image,product,Utils.staticFolders().image_product) .file    
+     }
+     const res=await conn.query(procedure,[this.product,file,alt]);
      return {error:false,message:null,data:res}
     } catch (err) {
-
-     return {error:true,message:err,data:null}
+     return {error:true,message:<string>err,data:null}
     }
   }
 
@@ -78,15 +77,15 @@ export default class Product  implements Iproduct {
     try { 
         const conn = await Utils.getConSQL()();
         let imageRes:{error:boolean,message:unknown,data:any}|null=null;
-        if(image) imageRes=(await this.insertIamge())
-        const {error,id}=await User.initialize().validateUser(token);
-        if(error)return { error: true, message:Utils.message().novalid_credential, data: null };
-        if(imageRes&&imageRes.error)return { error: true, message:<string>imageRes.message, data: null };
-        await conn.query(procedure, [id, product, category, createdAt, new Date(expiryDate), total, quantity, unit,price]);
+        imageRes=(await this.insertIamge())
+        const user=await  User.initialize().validateUser(token);
+        if(user.error)return {error:user.error,message:user.message,data:null,token:user.token};
+        if(imageRes&&imageRes.error)return { error: true, message:<string>imageRes.message, data: null, token:user.token};
+        await conn.query(procedure, [user.id, product, category, createdAt, new Date(expiryDate), total, quantity, unit,price]);
         const {added,objects}=Utils.message();
-        return { error: false, message:added(objects.product), data: null };
+        return { error: false, message:added(objects.product), data: null,token:user.token };
     } catch (error: any) {
-      return { error: true, message: error, data: null };
+      return { error: true, message: error, data: null ,token:null};
     }
   }
 
@@ -94,15 +93,15 @@ export default class Product  implements Iproduct {
     const conn = await Utils.getConSQL()(),
       procedure = Utils.listExpiredPP();
     try {
-      const {error,id}=await User.initialize().validateUser(token)
-      if(error)return { error: true, message:Utils.message().novalid_credential, data: [] };
+      const user=await  User.initialize().validateUser(token);
+      if(user.error)return {error:user.error,message:user.message,data:[],token:user.token};
        const  res = await conn.query(procedure, [
-          id,
+          user.id,
           new Date(),
         ]);
-      return { error: false, message: "", data: res[0] };
+      return { error: false, message: "", data: res[0] ,token:user.token};
     } catch (error: any) {
-      return { error: false, message: error, data: [] };
+      return { error: false, message: error, data: [],token:null };
     }
   }
 
@@ -110,15 +109,15 @@ export default class Product  implements Iproduct {
     const conn = await Utils.getConSQL()(),
       procedure = Utils.listUnExpiredPP();
     try {
-      const {error,id}=await User.initialize().validateUser(token)
-      if(error)return { error: true, message:Utils.message().novalid_credential, data: [] };
+      const user=await  User.initialize().validateUser(token);
+      if(user.error)return {error:user.error,message:user.message,data:[],token:user.token};
        const  res = await conn.query(procedure, [
-          id,
+          user.id,
           new Date(),
         ]);
-        return { error: false, message: "", data: res[0] };
+        return { error: false, message: "", data: res[0] ,token:user.token};
     } catch (error: any) {
-      return { error: true, message: error, data: [] };
+      return { error: true, message: error, data: [] ,token:null};
     }
   }
 }

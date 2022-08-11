@@ -12,4 +12,5 @@ export type TresponseExpiry={
     error:boolean,
     message:string|null,
     data:null|Tdonate[];
+    token:string|null
 }

@@ -10,8 +10,7 @@ route
     const { product, category, expiryDate, total, quantity, unit, price, alt } =
         req.body,
       { token } = req.params,
-      producto = new Product(product,category, expiryDate,total,quantity,unit,price,req.files?req:null);
-      
+      producto = Product.initialize({product,category, expiryDate,total,quantity,unit,price,image:req.files?req:null});
     try {
       const { message, data, error } = await producto.insert(token);
       if(!error)Utils.httpResponse(res, message, data, error, Utils.codeList().success);

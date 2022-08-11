@@ -22,7 +22,7 @@ router.route("/mongo/queries/reamaining/:token").get(Validator.validateRemaining
 router.route("/mongo/queries/durationsdays/:token").get(Validator.validateDuration, async (req, res, next) => {
    const {product,expiryDate } = req.body,{token}=req.params;
    await conn.connect()
-   const days= await QueriesMONGO.instance({token,product}).durationDays(expiryDate);
+   const days= await QueriesMONGO.instance({token,product}).diferenceDate(new Date(),expiryDate);
    await conn.disconnect()
    httpResponse( res,"",days, false, codeList().success)
 });

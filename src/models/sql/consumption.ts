@@ -8,8 +8,9 @@ export default class Consumption implements Iconsumtion {
     product:string;
     quantity: number;
     date: Date;
+    //private static consumption:Consumption Singgleton no aplica
 
-    constructor(productId: number,quantity: number,product:string){
+   private  constructor(productId: number,quantity: number,product:string){
           this.date=new Date();
           this.productId=productId;
           this.quantity=quantity;
@@ -28,13 +29,13 @@ export default class Consumption implements Iconsumtion {
           {product,productId,date,quantity}=this;
          try{
              const conn=await Utils.getConSQL()();
-             const {error,id}=await User.initialize().validateUser(token)
-            if(error)return {error:true,message:not_exist,data:[]}
-             await conn.query(query,[id,product,productId,date,quantity])
-             return {error:false,message:added(objects.consumtion),data:[]}
+             const user=await User.initialize().validateUser(token)
+            if(user.error)return {error:true,message:not_exist,data:[],token:null}
+             await conn.query(query,[user.id,product,productId,date,quantity])
+             return {error:false,message:added(objects.consumtion),data:[],token:user.token}
         }
          catch(error){
-           return {error:true,message:<string>error,data:[]}
+           return {error:true,message:<string>error,data:[],token:null}
           }
         
     }
@@ -44,13 +45,13 @@ export default class Consumption implements Iconsumtion {
         const query=Utils.listConsumtionP(),{not_exist,added,objects}=Utils.message();
         try{
           const conn=await Utils.getConSQL()();
-          const {error,id}=await User.initialize().validateUser(token)
-           if(error)return {error:true,message:not_exist,data:[]}
-            const res=await conn.query(query,[id])
-            return {error:false,message:"",data:res[0]}
+          const user=await User.initialize().validateUser(token)
+           if(user.error)return {error:true,message:not_exist,data:[],token:null}
+            const res=await conn.query(query,[user.id])
+            return {error:false,message:"",data:res[0],token:user.token}
        }
         catch(error){
-          return {error:true,message:<string>error,data:[]}
+          return {error:true,message:<string>error,data:[],token:null}
          }
        
 

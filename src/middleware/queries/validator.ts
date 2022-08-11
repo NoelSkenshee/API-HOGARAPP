@@ -20,12 +20,13 @@ export default class Validator{
 
 
    static validateDuration(req:any,res:any,next:Function){
-    const {product,expiryDate}=req.query;
+    const {expiryDate}=req.query;
     const {field}=message(),{badrequest}=codeList();
-    if(!product||!expiryDate)return Utils.httpResponse(res,field,null,true,badrequest,["product","expiryDate"])
+    if(!expiryDate)return Utils.httpResponse(res,field,null,true,badrequest,["expiryDate"])
     next()
    }
 
+   
    static validateConumptionD(req:any,res:any,next:Function){
     const {product,quantity}=req.query;
     const {field}=message(),{badrequest}=codeList();

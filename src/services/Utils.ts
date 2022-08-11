@@ -1,5 +1,6 @@
 import ConnectDB_SQL from './db/connection_db_sql';
 import crypto from "bcrypt"
+import fs from "fs"
 import ConnectDB_MONGO from './db/connection_db_mongo';
 import { ReqImage, image } from '../models/types/Tproduct';
 export default class Utils{
@@ -15,15 +16,19 @@ export default class Utils{
   private static  list_unexpired_p="call list_product_unexpired(?,?)";
   private static  list_expired_p="call list_expired_product(?,?)";
   private static  insert_image="call insert_image(?,?,?)";
-  private static  insert_consumtion="call consumption(?,?,?,?)";
+  private static  insert_consumtion="call consumption(?,?,?,?,?)";
   private static  list_consumtion="call list_consumption(?)";
   private static  donate="call donate(?,?,?,?,?,?,?,?,?)";
   private static  list_donations="call list_donations(?)";
   private static  trash="call trash(?,?)";
   private static  product_remaining="call product_remaining(?,?,?)";
   private static  consumption_average="call consumption_average(?,?)";
-
-
+  private static  insert_diet="call insert_diet(?,?,?,?,?,?)";
+  private static  insert_diet_days="call insert_diet_days(?,?,?)";
+  private static  increment_count_day="call increment_count_day(?,?,?,?)";
+  private static  list_diets="call list_diet(?)";
+  private static  list_daysT="call list_days_time(?)";
+  
   private static  welcome_mail_subject=()=>`Bienvenido a HOGARADMIN`;
   private  static welcome_mail_text=(name:string,token:string)=>`<h2>Hola ${name}</h2> 
                                              <div>
@@ -87,7 +92,23 @@ export default class Utils{
     return this.insert_p
   }
 
-  
+  static insertDietP(){
+    return this.insert_diet
+  }
+  static insertDietdays(){
+    return this.insert_diet_days
+  }
+
+  static incrementDietDP(){
+    return this.increment_count_day
+  }
+
+  static listDietsDP(){
+    return this.list_diets
+  }
+  static listDaysTime(){
+    return this.list_daysT
+  }
    
 /**
  * //id,product,destination,date,expiry_date,quantity,unit,image
@@ -210,7 +231,8 @@ static publicFile(image:any,name:string,dir:string):{error:boolean,message:strin
     ;let ext=<string>extentions[file.mimetype];
     if(!ext)return  {error:true,message:"Invalid file extention" ,file:null};
     ext=name+"."+ext;
-    file.mv(`${__dirname}../../public/${dir}/${ext}`)
+    const exist=fs.existsSync(`${__dirname}../../public/${dir}/${ext}`)
+    if(!exist)file.mv(`${__dirname}../../public/${dir}/${ext}`)
     return  {error:false,message:"Insertion Success",file:ext};
 }else return {error:true,message:"File not detected",file:null}
 }
