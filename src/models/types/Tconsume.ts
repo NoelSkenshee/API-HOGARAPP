@@ -11,4 +11,5 @@ export type TresponseConsumtion={
     error:boolean,
     message:string,
     data:Tconsumtion[]
+    token:string|null
 }

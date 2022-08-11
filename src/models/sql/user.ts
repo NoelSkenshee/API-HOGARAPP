@@ -12,7 +12,6 @@ export default class User implements IUser {
   verified: boolean;
 
   /**
-   *
    * @param name
    * @param email
    * @param password
@@ -71,7 +70,8 @@ export default class User implements IUser {
           message: Utils.message().not_exist,
           user: <userToken>res[0][0],
         };
-      return { error: false, message: "", user: <userToken>res[0][0] };
+      const {name, email}=res[0][0];
+      return { error: false, message: "", user: <userToken>{name, id,email} ,token:SessionManageR.genToken(name,id,email)};
     } catch (error: any) {
       return { error: true, message: error, user: null };
     }
@@ -152,11 +152,11 @@ export default class User implements IUser {
     try {
     const {id,name,email}=await SessionManageR.decodToken(token);
      this.email=email;this.name=name;
-    const{error,message}= await this.getUser(id);
-    return {error,message,id:id==undefined?null:id}
+    const user= await this.getUser(id);
+    return {error:user.error,message:user.message,id:id==undefined?null:id,token:user.token||null}
     }
     catch (error) {
-      return {error:true,message:error,id:null}
+      return {error:true,message:error,id:null,token:null}
     }
   }
 

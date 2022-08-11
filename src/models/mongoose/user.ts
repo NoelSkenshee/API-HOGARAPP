@@ -133,13 +133,13 @@ export default class UserMongo implements IUser {
 
     async validateUser(token:string){
     try {
-    const {id,name,email}=await SessionManageR.decodToken(token);
-    this.name=name;this.email=email;
-   const {error,message}= await this.getUser(id);
-    return {error,message,id:id||null}
+    const user=await SessionManageR.decodToken(token);
+    this.name=user.name;this.email=user.email;
+   const {error,message}= await this.getUser(user.id);
+    return {error,message,id:user.id||null,token:SessionManageR.genToken(this.name,user.id,this.email)}
     }
     catch (error) {
-      return {error:true,message:<string>error,id:null}
+      return {error:true,message:<string>error,id:null,token:null}
     }
   }
 }

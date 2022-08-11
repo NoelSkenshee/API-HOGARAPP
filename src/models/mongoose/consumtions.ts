@@ -40,20 +40,20 @@ export default class ConsumptionMONGO implements Iconsumption {
       { date, quantity, product } = this;
 
     try {
-      const { error, id, message } = await UserMongo.initialize().validateUser(token);
-      if (error) return { error: true, message, data: [] };
+      const  user=await UserMongo.initialize().validateUser(token)
+      if(user.error)return { error: true, message:user.message, data:[],token:user.token };
       const consumptionId = new mongo.Types.ObjectId();
       const res_update = await ProductMongo.initialize().updateProduct(token, product, { consumption: consumptionId, quantity, });
       const res_up_consumption=await this.updateConsumption()
-      if (res_update.error || !res_up_consumption.error)return { error: true, message: <string>res_update.message , data: [] };
+      if (res_update.error || !res_up_consumption.error)return { error: true, message: <string>res_update.message , data: [] ,token:user.token };
         const consumption = new ModelConsumption({ _id: consumptionId,  date, quantity});
-        consumption.user = <any>id;
+        consumption.user = <any>user.id;
         consumption.image = <any>res_update.data;
         consumption.productId[0] = <any>product;
       await consumption.save();
-      return { error: false, message: added(objects.consumtion), data: [] };
+      return { error: false, message: added(objects.consumtion), data: [] ,token:user.token };
     } catch (error) {
-      return { error: true, message: <string>error, data: [] };
+      return { error: true, message: <string>error, data: [],token:null };
     }
   }
 

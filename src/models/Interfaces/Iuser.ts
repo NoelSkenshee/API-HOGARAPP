@@ -9,5 +9,5 @@ export default interface IUser{
        getUser(id: number):Promise<{error:boolean,message:string}>;
        verifyUser(token: string):Promise<{error:boolean,message:string}>;
        login():Promise<{error:boolean,message:string}>;
-       validateUser(token:string):Promise<{error:boolean,message:string,id:null|number|string}>;
+       validateUser(token:string):Promise<{error:boolean,message:string,id:null|number|string,token:string|null}>;
 }

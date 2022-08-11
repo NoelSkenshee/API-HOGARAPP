@@ -31,16 +31,16 @@ export default class ExpiryMONGO implements Iexpiry{
         const {product,destination,date,quantity}=this;
         const {added,objects}=Utils.message(), {image,unit,expiryDate}=product;
          try {
-         const {error,message,id}=await User.initialize().validateUser(token);
-         if(error)return {error,message,data:null};
+            const  user=await User.initialize().validateUser(token)
+            if(user.error)return { error: true, message:user.message, data:[],token:user.token };
          const upProd=await ProductMongo.initialize().setDonation(token,product.id,{donation:quantity})
-         if(upProd.error)return {error:true,message:upProd.message,data:null};
+         if(upProd.error)return {error:true,message:upProd.message,data:null,token:user.token };
 
-         const donate=new ExpiryModel({user:id,product:product.id,destination,date,quantity,unit,image,name:product.product,expiryDate})
+         const donate=new ExpiryModel({user:user.id,product:product.id,destination,date,quantity,unit,image,name:product.product,expiryDate})
          await donate.save()
-         return {error,message:added(objects.donation),data:null}
+         return {error:user.error,message:added(objects.donation),data:null,token:user.token };
          } catch (error) {
-         return {error:true,message:<string>error,data:null}
+         return {error:true,message:<string>error,data:null,token:null };
         }
     }
 
@@ -49,13 +49,13 @@ export default class ExpiryMONGO implements Iexpiry{
    async  listDonations(token: string): Promise<TresponseExpiry> {
          const {found}=Utils.message();
          try {
-         const {error,message,id}=await User.initialize().validateUser(token);
-         if(error)return {error,message,data:null};
-         const donations=await  ExpiryModel.find({user:id});
-         if(!donations)return {error,message:found,data:null}; 
-        return {error,message:"",data:donations.map(({user, product,destination, date,expiryDate,name, quantity, unit, image})=>({user, product,destination, date,expiryDate,name, quantity, unit, image}))||null}
+         const  user=await User.initialize().validateUser(token)
+         if(user.error)return { error: true, message:user.message, data:[],token:user.token };
+         const donations=await  ExpiryModel.find({user:user.id});
+         if(!donations)return {error:user.error,message:found,data:null,token:user.token };
+        return {error:user.error,message:"",data:donations.map(({user, product,destination, date,expiryDate,name, quantity, unit, image})=>({user, product,destination, date,expiryDate,name, quantity, unit, image}))||null,token:user.token };
          } catch (error) {
-         return {error:true,message:<string>error,data:null}
+         return {error:true,message:<string>error,data:null,token:null}
         }
     }
 
@@ -64,15 +64,15 @@ export default class ExpiryMONGO implements Iexpiry{
         const trash_:number=1;
          try {            
          const {trash,found}=Utils.message()
-         const {error,message,id}=await  User.initialize().validateUser(token);
-         if(error)return {error,message,data:null};
-          const res=await ProductModel.findOne({_id:this.product.id,user:id});
-          if(!res)return {error,message:found,data:null};
+         const  user=await User.initialize().validateUser(token)
+         if(user.error)return { error: true, message:user.message, data:[],token:user.token };
+          const res=await ProductModel.findOne({_id:this.product.id,user:user.id});
+          if(!res)return {error:true,message:found,data:null,token:user.token };
           res.trash=trash_;
           await res.save()
-          return {error,message:trash,data:null}
+          return {error:false,message:trash,data:null,token:user.token };
          } catch (error) {
-          return {error:true,message:<string>error,data:null}
+          return {error:true,message:<string>error,data:null,token:null };
         }
 
     }
