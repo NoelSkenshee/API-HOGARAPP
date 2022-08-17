@@ -1,0 +1,1 @@
+export type TconfigResponse={error:boolean,message:string,data:any,token:string|null}

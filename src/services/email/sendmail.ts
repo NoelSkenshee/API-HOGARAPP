@@ -5,16 +5,15 @@ import Utils from "../Utils";
 export default class Mail {
   private static senKey = process.env.HOGARAPP_EMAIL_KEY || "";
 
-  public static verify_user_mail(name: string, to: string, token: string) {
+  public static  sendMail(to: string,html:string,subject:string) {
      sg.setApiKey(this.senKey)
-    const payload = Utils.getMialPayload();
      const msg={
       from: process.env.HOGARAPP_EMAIL?process.env.HOGARAPP_EMAIL:"",
       to,
-      subject: payload.subject(),
-      text:"",
-      html:payload.text(name, token)
+      subject,
+      html
      };
+
   return   sg.send(msg)
    
 }

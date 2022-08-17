@@ -40,8 +40,9 @@ export default class UserMongo implements IUser {
     return userModel
       .create({ name, email, password })
       .then(async (res) => {
-        const token = SessionManageR.genToken(name, res.id, email);
-        await Mail.verify_user_mail(name, email, token);
+        const token = SessionManageR.genToken(name, res.id, email),
+         payload = Utils.getMialPayload("verify");
+         await Mail.sendMail(email,payload.text(name,token),payload.subject());
         return { error: false, message: added(objects.user) };
       })
       .catch((err) => ({ error: true, message: err }));
@@ -94,6 +95,7 @@ export default class UserMongo implements IUser {
             if (!data) return { error: true, message: not_exist, token: null };
             const { name, id, email } = data,
               token = SessionManageR.genToken(name, id, email);
+               
             return { error: false, message: "", token };
           })
           .catch((err) => ({ error: true, message: err, token: null }));
@@ -136,10 +138,10 @@ export default class UserMongo implements IUser {
     const user=await SessionManageR.decodToken(token);
     this.name=user.name;this.email=user.email;
    const {error,message}= await this.getUser(user.id);
-    return {error,message,id:user.id||null,token:SessionManageR.genToken(this.name,user.id,this.email)}
+    return {error,message,id:user.id||null,email:user.email||null,token:SessionManageR.genToken(this.name,user.id,this.email)}
     }
     catch (error) {
-      return {error:true,message:<string>error,id:null,token:null}
+      return {error:true,message:<string>error,id:null,token:null,email:null}
     }
   }
 }

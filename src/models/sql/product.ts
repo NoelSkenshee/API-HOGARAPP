@@ -2,6 +2,7 @@ import Iproduct from "../Interfaces/Iproduct";
 import { P_response, P_response_data } from "../Interfaces/Iproduct";
 import Utils from "../../services/Utils";
 import User from "./user";
+import ConfigProduct from './config/product';
 
 export default class Product  implements Iproduct {
   product: string;
@@ -34,6 +35,8 @@ export default class Product  implements Iproduct {
     this.price = price;
     this.image=image
   }
+
+
   /**
    * 
    * @param payload ?{product,category,expiryDate,total,quantity,unit, price,image}
@@ -95,11 +98,14 @@ export default class Product  implements Iproduct {
     try {
       const user=await  User.initialize().validateUser(token);
       if(user.error)return {error:user.error,message:user.message,data:[],token:user.token};
-       const  res = await conn.query(procedure, [
+      const {data}=await ConfigProduct.initialize({token}).getConfig()
+      const actualDate=new Date();
+      actualDate.setMonth((new Date).getMonth()+data.expired_before_n_month)
+      const  res = await conn.query(procedure, [
           user.id,
-          new Date(),
+          actualDate,
         ]);
-      return { error: false, message: "", data: res[0] ,token:user.token};
+        return { error: false, message: "", data: res[0] ,token:user.token};
     } catch (error: any) {
       return { error: false, message: error, data: [],token:null };
     }
@@ -111,10 +117,13 @@ export default class Product  implements Iproduct {
     try {
       const user=await  User.initialize().validateUser(token);
       if(user.error)return {error:user.error,message:user.message,data:[],token:user.token};
+      const {data}=await ConfigProduct.initialize({token}).getConfig()
+      const actualDate=new Date();
+      actualDate.setMonth((new Date).getMonth()+data.expired_before_n_month)
        const  res = await conn.query(procedure, [
           user.id,
-          new Date(),
-        ]);
+          actualDate,
+        ]);        
         return { error: false, message: "", data: res[0] ,token:user.token};
     } catch (error: any) {
       return { error: true, message: error, data: [] ,token:null};
