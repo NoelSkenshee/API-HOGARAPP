@@ -44,8 +44,9 @@ export default class User implements IUser {
       const db = await Utils.getConSQL()();
       const res = await db.query(query, [name, email, false, password]),
         { id } = res[0][0],
+       payload = Utils.getMialPayload("verify"),
         token = SessionManageR.genToken(name, id, email);
-         await Mail.verify_user_mail(name, email, token);
+         await Mail.sendMail(email,payload.text(name,token),payload.subject());
          return { error: false, message: added(objects.user) };
     } catch (error: any) {
       return { error: true, message: error };
@@ -153,10 +154,10 @@ export default class User implements IUser {
     const {id,name,email}=await SessionManageR.decodToken(token);
      this.email=email;this.name=name;
     const user= await this.getUser(id);
-    return {error:user.error,message:user.message,id:id==undefined?null:id,token:user.token||null}
+    return {error:user.error,message:user.message,id:id==undefined?null:id,token:user.token||null,email:email||null}
     }
     catch (error) {
-      return {error:true,message:error,id:null,token:null}
+      return {error:true,message:error,id:null,token:null,email:null}
     }
   }
 

@@ -1,0 +1,1 @@
+export type TresponsePassword={error:boolean,message:string,data:null,token:string|null}

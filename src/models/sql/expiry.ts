@@ -23,8 +23,8 @@ export default class Expiry implements Iexpiry{
    public static initialize(payload?:any){
     let prod:any={}
     if(!payload)return new Expiry(prod,"",0);
-    const {product,destination}=payload;
-     return new Expiry(<Tproduct>product,destination,0)
+    const {product,destination,quantity}=payload;
+     return new Expiry(<Tproduct>product,destination,quantity)
    }
 
 
@@ -73,6 +73,4 @@ export default class Expiry implements Iexpiry{
         }
 
     }
-
-
 }

@@ -28,8 +28,18 @@ export default class Utils{
   private static  increment_count_day="call increment_count_day(?,?,?,?)";
   private static  list_diets="call list_diet(?)";
   private static  list_daysT="call list_days_time(?)";
+  private static  send_message="call send_message(?,?,?,?)";
+  private static  change_code="call change_password(?,?)";
+  private static   verify_change="call verify_password_change(?,?)";
+  private static   status_change="call change_password_status(?,?)";
+  private static   insert_config_product="call insert_config_product(?,?,?,?)";
+  private static   get_config_product="call get_config_product(?)";
+  private static   insert_config_diet="call insert_config_diet(?,?,?)";
+  private static   get_config_diet="call get_config_diet(?)";
+
   
-  private static  welcome_mail_subject=()=>`Bienvenido a HOGARADMIN`;
+  
+  private static  welcome_mail_subject=()=>`Bienvenido a HOGARAPP`;
   private  static welcome_mail_text=(name:string,token:string)=>`<h2>Hola ${name}</h2> 
                                              <div>
                                              <p>
@@ -38,9 +48,17 @@ export default class Utils{
                                              servicios que ofrecemos.
                                              </p>
                                              <p>
-                                              Te invitamos a precionar este link para verificarte
+                                              Con solo presionar este link dara el ultimo salto
                                              </p>
-                                             <a href="http://localhost:9090/verify/${token}">VERIFY</a>
+                                             <a href="https://hogarapp.herokuapp.com/verify/${token}">Verificar</a>
+                                          </div>`;
+  private static  changepasswordSUBJ=()=>`Cambiar contraseña HOGARAPP`;
+  private  static changepasswordhtml=(name:string,token:string)=>`<h2>Hola ${name}</h2> 
+                                             <div>
+                                             <p>
+                                              Da el ultimo salto para cambiar tu contraseña
+                                             </p>
+                                             <a href="https://hogarapp.herokuapp.com/verify_password/${token}">Saltar</a>
                                           </div>`;
 
   /**
@@ -56,8 +74,9 @@ export default class Utils{
    }
 
    
-   static getMialPayload(){
-    return {subject:this.welcome_mail_subject,text:this.welcome_mail_text}
+   static getMialPayload(context:"verify"|"password"){
+    if(context=="verify") return {subject:this.welcome_mail_subject,text:this.welcome_mail_text}
+    else return {subject:this.changepasswordSUBJ,text:this.changepasswordhtml}
    }
 
 
@@ -109,7 +128,18 @@ export default class Utils{
   static listDaysTime(){
     return this.list_daysT
   }
-   
+  static insert_config_product_p(){
+    return this.insert_config_product
+  }
+   static get_config_product_p(){
+    return this.get_config_product
+   }
+   static insert_config_diet_p(){
+    return this.insert_config_diet
+  }
+   static get_config_diet_p(){
+    return this.get_config_diet
+   }
 /**
  * //id,product,destination,date,expiry_date,quantity,unit,image
  * @returns 
@@ -168,10 +198,24 @@ export default class Utils{
     static consumption_averageP(){
       return this.consumption_average
     } 
+    static send_message_P(){
+      return this.send_message
+    } 
+    static change_pass_P(){
+      return this.change_code
+    } 
+    static verify_change_pass_P(){
+      return this.verify_change
+    }   
+    static status_change_pass_P(){
+      return this.status_change
+    } 
   static message(){
     return {
         field:"Required field missing",
-        objects:{"user":"user","product":"product","image":"image","consumtion":"consumtion","donation":"donation"},
+        changePending:"Password change pending",
+        passwordChange:"The password was change",
+        objects:{"user":"user","product":"product","image":"image","consumtion":"consumtion","donation":"donation","message":"message","config":"config"},
         added:(object_:string)=>`${object_} added succsessfuly`,
         updated:(object_:string)=>`${object_} updated succsessfuly`,
         notfound:(object_:string)=>`${object_} not found succsessfuly`,
